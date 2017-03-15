@@ -10,6 +10,11 @@ git clone https://github.com/dlyt/YCool.git
 npm install
 ```
 
+##开发环境
+
+IOS  6S
+
+
 ##License
 
 MIT
