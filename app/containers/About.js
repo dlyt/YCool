@@ -1,15 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import ReactNative from 'react-native';
-import { appStyle } from '../styles';
-
-import DeviceInfo from 'react-native-device-info'
-import Swipeout from 'react-native-swipeout'
-
-
-
-
-const {
+import {
   PixelRatio,
   ScrollView,
   View,
@@ -21,7 +12,12 @@ const {
   TouchableOpacity,
   StyleSheet,
   RefreshControl,
-} = ReactNative;
+} from 'react-native';
+import { appStyle } from '../styles';
+
+import DeviceInfo from 'react-native-device-info'
+import Swipeout from 'react-native-swipeout'
+
 
 
 class About extends Component {
