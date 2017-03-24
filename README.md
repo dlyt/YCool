@@ -1,6 +1,9 @@
 #YCool
 
 ##效果图
+
+![Octicons](https://og.github.com/octicons/octicons@1200x630.png)
+
 ![](http://p1.bqimg.com/1949/1cc0df484d580e51.gif)
 
 ##后台API地址
