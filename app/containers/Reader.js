@@ -80,8 +80,6 @@ class Reader extends Component {
     return arr
   }
 
-
-
   // componentWillReceiveProps(nextProps) {
   //   console.log(nextProps);
   //   console.log(this.props.firstRenderChapters);
@@ -121,12 +119,6 @@ class Reader extends Component {
     this.props.navigateBack({ key: 'ApplicationTabs'})
   }
 
-  loading() {
-    return(
-      <Text>Searching...</Text>
-    )
-  }
-
   componentWillReceiveProps(nextProps) {
     // console.log(nextProps);
   }
@@ -139,7 +131,6 @@ class Reader extends Component {
   }
 
   _unshiftData(newData) {
-    console.log(11);
     newData = newData.concat(this._data)
     this._data = newData
     this.setState({
@@ -200,7 +191,6 @@ class Reader extends Component {
     }
 
     if (x < 0) {
-      this.setState({searching: true})
       let json = {
         novelId: that.uuid,
         num: that.number - 1
@@ -221,6 +211,7 @@ class Reader extends Component {
             }
             arr.push(_chapterInfo)
           })
+          that.setState({searching: true})
           that._unshiftData(arr)
         })
     }
@@ -246,6 +237,19 @@ class Reader extends Component {
 
   List() {
     return Object.keys(this.props.firstRenderChapters).map(key => this.props.firstRenderChapters[key])
+  }
+
+  loading() {
+    return(
+      <View style={{flexDirection: 'row'}}>
+        <TouchableOpacity
+        style={{height: Util.size.height,width: tabWidth}}
+        activeOpacity={1}
+        onPress={ () => this.show() }>
+          <Text>searching...</Text>
+        </TouchableOpacity>
+       </View>
+    )
   }
 
   renderContent(rowData) {
@@ -284,14 +288,13 @@ class Reader extends Component {
         style={{height: Util.size.height,width: tabWidth}}
         activeOpacity={1}
         onPress={ () => this.show() }>
-          {this.state.searching ? this.loading() : this.renderContent(rowData)}
+          {this.renderContent(rowData)}
         </TouchableOpacity>
         { this.state.hide ? null : this.showReaderOptions() }
        </View>
     )
   }
-
-
+  // {this.state.searching ? this.loading() : this.renderContent(rowData)}
   render() {
     return(
       <View style={styles.container} >
@@ -303,12 +306,12 @@ class Reader extends Component {
           showsHorizontalScrollIndicator={false}
           showsVerticalScrollIndicator={false}
           pagingEnabled={true} >
-              {this.renderListView()}
+            {this.state.searching ? this.loading() : this.renderListView()}
           </ScrollView>
       </View>
     );
   }
-
+  // {this.state.searching ? this.loading() : this.renderListView()}
   showReaderOptions(){
     return (
       <View style={styles.alertContainer} >
