@@ -1,5 +1,8 @@
 #YCool
 
+##效果图
+![](http://p1.bqimg.com/1949/1cc0df484d580e51.gif)
+
 ##后台API地址
 
 https://github.com/dlyt/YCool_Server.git
