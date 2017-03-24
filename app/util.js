@@ -13,7 +13,6 @@ import {
 
 
 module.exports = {
-  userToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjU4YjhmZDRkODUyYTE1YzliNmYyNjI3MSIsImlhdCI6MTQ4ODUyMjQ0Nn0.9FTfNRnAgdgmoOa82s9kh90Zchk0AVSm-Y-d1ZH7y34',
   navigationHeight: 44,
   navigationBarBGColor:'#3497FF',
   statusBarHeight: 20,
@@ -24,6 +23,99 @@ module.exports = {
   size: {
     width: Dimensions.get('window').width,
     height: Dimensions.get('window').height
+  },
+  handleContent: function(content) {
+    const length = content.length
+    var array = []
+    let x = 0,y,m = 0
+    while (x < length) {
+      let _array = []
+      for (let i = 0; i <= 16; i++) {
+        let str_spa = content.substring(x, x + 1)
+        let str_sto = content.substring(x, x + 18)
+        const re = /^\s+$/
+        if (str_sto.indexOf('”') != -1) {
+          y = x + str_sto.indexOf('”') + 1
+          _array[i] = content.substring(x, y)
+          x = y
+          continue
+        }
+        else if (str_sto.indexOf('。') != -1 ) {
+          y = x + str_sto.indexOf('。') + 1
+          if (re.exec(content.substring(y, y + 1))) {
+            y = x + str_sto.indexOf('。') + 1
+            _array[i] = content.substring(x, y)
+            x = y
+            continue
+          }
+          else {
+            if (str_sto.indexOf('！') != -1) {
+              y = x + str_sto.indexOf('！') + 1
+              _array[i] = content.substring(x, y)
+              x = y
+              continue
+            }
+            else {
+              y = x + 18
+              _array[i] = content.substring(x, y)
+              x = y
+              continue
+            }
+          }
+        }
+        else if (str_sto.indexOf('！') != -1) {
+          y = x + str_sto.indexOf('！') + 1
+          if (re.exec(content.substring(y, y + 1))) {
+            y = x + str_sto.indexOf('！') + 1
+            _array[i] = content.substring(x, y)
+            x = y
+            continue
+          }
+          else {
+            y = x + 18
+            _array[i] = content.substring(x, y)
+            x = y
+            continue
+          }
+        }
+        else if (str_sto.indexOf('？') != -1){
+          y = x + str_sto.indexOf('？') + 1
+          if (re.exec(content.substring(y, y + 1))) {
+            y = x + str_sto.indexOf('？') + 1
+            _array[i] = content.substring(x, y)
+            x = y
+            continue
+          }
+          else {
+            y = x + 18
+            _array[i] = content.substring(x, y)
+            x = y
+            continue
+          }
+        }
+        else if (re.exec(str_spa)) {
+          y = x + 24
+          if (content.substring(x,y).indexOf('。') != -1) {
+            y = x + content.substring(x,y).indexOf('。') + 1
+            _array[i] = content.substring(x, y)
+            x = y
+            continue
+          }
+          _array[i] = content.substring(x, y)
+          x = y
+          continue
+        }
+        else {
+          y = x + 18
+          _array[i] = content.substring(x, y)
+          x = y
+        }
+      }
+      array[m] = _array
+      m++
+    }
+    // console.log((m - 1) * 375);
+    return array
   },
   /**
    * 基于fetch的get方法

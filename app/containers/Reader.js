@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import { ActionCreators } from '../actions';
 import { bindActionCreators } from 'redux';
 import Util from '../util';
+import Request from '../lib/request'
 import {
   Animated,
   Easing,
@@ -12,6 +13,7 @@ import {
   Text,
   StyleSheet,
   ScrollView,
+  ListView,
   TouchableOpacity,
   PanResponder,
 } from 'react-native'
@@ -19,72 +21,250 @@ import Dimensions from 'Dimensions'
 
 const tabWidth = Dimensions.get('window').width;
 
+
 class Reader extends Component {
 
   constructor(props) {
-    super(props);
+    super(props)
     this.state={
-      offset: new Animated.Value(0),
-      opacity: new Animated.Value(0),
-      hide: true,
-      uuid: this.props.navigationParams.id
+      dataSource: new ListView.DataSource({
+        rowHasChanged:    (row1, row2) => row1 !== row2
+      }),
+      offset:             new Animated.Value(0),
+      opacity:            new Animated.Value(0),
+      hide:               true,
+      searching:          false,
+      first:              true,
     }
+    this.uuid = this.props.navigationParams.id
+    this._data= []
+    this.count = 0
+    this.currentChapter = ''
+    this.nextChapter = ''
+    this.number = 0
   }
 
   componentWillMount() {
-    this.props.getChapterDetail(this.state.uuid)
+    this.props.getDirectory(this.uuid)
+    this.props.getFirstRenderChapters(this.uuid)
   }
 
+  getChapterContent() {
+    const that = this
+    let list = this.List()
+    let arr = []
+    if (list.length !== 0) {
+      let content = that.nbsp2Space(list[0][0].content)
+      let _arr = Util.handleContent(content)
+      this.currentChapter = _arr.length
+      _arr.forEach( function(_item) {
+        let chapterInfo = {
+          title: list[0][0].title,
+          num: list[0][0].number,
+          content: _item
+        }
+        arr.push(chapterInfo)
+      })
+      content = that.nbsp2Space(list[0][1].content)
+      _arr = Util.handleContent(content)
+      this.nextChapter = _arr.length
+      _arr.forEach( function(_item) {
+        let chapterInfo = {
+          title: list[0][1].title,
+          num: list[0][1].number,
+          content: _item
+        }
+        arr.push(chapterInfo)
+      })
+    }
+    return arr
+  }
+
+
+
+  // componentWillReceiveProps(nextProps) {
+  //   console.log(nextProps);
+  //   console.log(this.props.firstRenderChapters);
+  // }
+
   componentDidMount() {
-    // console.log(this.props.navigationParams.id);
+    console.log(this.props.firstRenderChapters);
+  }
+
+  shouldComponentUpdate(nextProps, nextState) {
+    // console.log(1);
+    // console.log(nextState);
+    // if (Object.keys(this.props.firstRenderChapters).length !== 0 ) {
+    //   // nextState.first = false
+    //   let progress = this.props.firstRenderChapters.progress
+    //   this.number = this.props.firstRenderChapters.chapters[0].number
+    //   let listView = this.refs.listView
+    //   listView.scrollResponderScrollTo({x: progress * 375, y: 0, animated: false})
+    // }
+    return true
   }
 
   goDerictory() {
     this.iknow()
     this.props.navigate({
       key: 'Directory',
-      id: this.props.chapterContent.novel._id,
-      name: this.props.chapterContent.novel.name,
+      id: this.props.navigationParams.id,
     })
   }
 
-  bookshelfLists() {
-    return Object.keys(this.props.searchedBookshelves).map(key => this.props.searchedBookshelves[key])
+  directoryList() {
+    return Object.keys(this.props.directory).map(key => this.props.directory[key])
   }
 
+  goBack() {
+    this.iknow()
+    this.props.navigateBack({ key: 'ApplicationTabs'})
+  }
+
+  loading() {
+    return(
+      <Text>Searching...</Text>
+    )
+  }
+
+  componentWillReceiveProps(nextProps) {
+    // console.log(nextProps);
+  }
+
+  _concatData(newData) {
+    this._data = this._data.concat(newData)
+    this.setState({
+      dataSource: this.state.dataSource.cloneWithRows(this._data)
+    })
+  }
+
+  _unshiftData(newData) {
+    console.log(11);
+    newData = newData.concat(this._data)
+    this._data = newData
+    this.setState({
+      dataSource: this.state.dataSource.cloneWithRows(this._data),
+      searching: false
+    })
+    // console.log(this.state.searching);
+  }
+
+  componentWillUpdate(nextProps, nextState) {
+    // console.log(nextState.first);
+    console.log(1);
+    if (Object.keys(this.props.firstRenderChapters).length !== 0 && nextState.first) {
+      this.setState({
+        first: false
+      })
+      let progress = this.props.firstRenderChapters.progress
+      this.number = this.props.firstRenderChapters.chapters[0].number
+      let listView = this.refs.listView
+      listView.scrollTo({x: progress * 375, y: 0, animated: false})
+    }
+  }
 
   handleScroll(e) {
-    var scrollView = this.refs.scrollView
-    if (e.nativeEvent.contentOffset.x < 0) {
-        if (this.props.chapterContent.number === 0) {
-          alert('已是第一页')
-        }
-        else {
-          var width = e.nativeEvent.contentSize.width
-          this.props.getLastChapterDetail(this.props.chapterContent._id)
-          scrollView.scrollResponderScrollTo({x: width - 375, y: 0, animated: false})
-        }
+    let arr = []
+    let chapterInfo
+    const that = this
+    let listView = this.refs.listView
+    let x = e.nativeEvent.contentOffset.x
+    if (this.count === 0) {
+      this.count = (this.currentChapter - 1) * 375
     }
-    if (e.nativeEvent.contentOffset.x > e.nativeEvent.contentSize.width - 375) {
-      this.props.getNextChatperDetail(this.props.chapterContent._id)
-      scrollView.scrollResponderScrollTo({x: 0, y: 0, animated: false})
+    console.log(x);
+    // console.log(this.count);
+    if ( x > this.count) {
+      this.count += this.nextChapter * 375
+      let json = {
+        novelId: that.uuid,
+        num: that.number + 2
+      }
+      Request.post(`/chapters`, json)
+        .then((data) => {
+          chapterInfo = data.response
+          that.number = that.number + 1
+          let content = that.nbsp2Space(chapterInfo.content)
+          let _arr = Util.handleContent(content)
+          that.currentChapter = that.nextChapter
+          that.nextChapter = _arr.length
+          _arr.forEach( function(_item) {
+            let _chapterInfo = {
+              title: chapterInfo.title,
+              num: chapterInfo.number,
+              content: _item
+            }
+            arr.push(_chapterInfo)
+          })
+          that._concatData(arr)
+        })
     }
 
+    if (x < 0 && this.number === 0) {
+        alert('已是第一页')
+    }
+
+    if (x < 0) {
+      this.setState({searching: true})
+      let json = {
+        novelId: that.uuid,
+        num: that.number - 1
+      }
+      Request.post(`/chapters`, json)
+        .then((data) => {
+          chapterInfo = data.response
+          that.number = that.number - 1
+          let content = that.nbsp2Space(chapterInfo.content)
+          let _arr = Util.handleContent(content)
+          that.currentChapter = _arr.length
+          that.nextChapter = that.currentChapter
+          _arr.forEach( function(_item) {
+            let _chapterInfo = {
+              title: chapterInfo.title,
+              num: chapterInfo.number,
+              content: _item
+            }
+            arr.push(_chapterInfo)
+          })
+          that._unshiftData(arr)
+        })
+    }
   }
 
-  renderContent(item, i, title) {
-    return (<View style={{flexDirection: 'row'}} key={i}>
-      <TouchableOpacity
-      style={{height: Util.size.height,width: tabWidth}}
-      activeOpacity={1}
-      onPress={ () => this.show() }>
+  renderListView () {
+    if (this._data.length === 0) {
+      this._data = this.getChapterContent()
+    }
+    return(
+      <ListView
+        enableEmptySections
+        ref='listView'
+        horizontal={true}
+        pagingEnabled={true}
+        initialListSize={1}
+        onScroll={(e)=>this.handleScroll(e)}
+        showsHorizontalScrollIndicator={false}
+        showsVerticalScrollIndicator={false}
+        dataSource={this.state.dataSource.cloneWithRows(this._data)}
+        renderRow={this.renderRow.bind(this)}
+         />
+    )
+  }
+
+  List() {
+    return Object.keys(this.props.firstRenderChapters).map(key => this.props.firstRenderChapters[key])
+  }
+
+  renderContent(rowData) {
+    return(
+      <View style={styles.container} >
         <View style={styles.top}>
           <Text style={styles.chapterName}>
-            {title}
+            {rowData.title}
           </Text>
         </View>
         <View style={styles.chapterContent}>
-          {item ? item.map((value, index,chapterContent) => {
+          {rowData.content ? rowData.content.map((value, index,chapterContent) => {
             return (
               <Text style={styles.ficContent} key={index}>
                 {value}
@@ -97,36 +277,39 @@ class Reader extends Component {
             本章进度100%
           </Text>
           <Text style={[styles.footRight, styles.chapterName]}>
-            228/1022
+            {rowData.num}/1022
           </Text>
         </View>
-      </TouchableOpacity>
-      { this.state.hide ? null : this.showReaderOptions() }
-     </View>)
+      </View>
+    )
   }
 
-  goBack() {
-    this.iknow()
-    this.props.navigateBack({ key: 'ApplicationTabs'})
+  renderRow (rowData, sectionID, rowID, highlightRow) {
+    return(
+      <View style={{flexDirection: 'row'}}>
+        <TouchableOpacity
+        style={{height: Util.size.height,width: tabWidth}}
+        activeOpacity={1}
+        onPress={ () => this.show() }>
+          {this.state.searching ? this.loading() : this.renderContent(rowData)}
+        </TouchableOpacity>
+        { this.state.hide ? null : this.showReaderOptions() }
+       </View>
+    )
   }
+
 
   render() {
-    let detail = this.props.chapterContent
-    let content = this.nbsp2Space(detail.content)
-    if (content) {
-      var arr = this.handleContent(content)
-    }
     return(
       <View style={styles.container} >
           <ScrollView
           ref='scrollView'
-          scrollEventThrottle={16}
+          scrollEventThrottle={800}
           horizontal={true}
           showsHorizontalScrollIndicator={false}
           showsVerticalScrollIndicator={false}
-          onScroll={(e)=>this.handleScroll(e)}
           pagingEnabled={true} >
-              {arr ? arr.map( (item, i) => this.renderContent(item, i, detail.title)) : null}
+              {this.renderListView()}
           </ScrollView>
       </View>
     );
@@ -224,101 +407,6 @@ class Reader extends Component {
    return str.replace(/&nbsp;&nbsp;&nbsp;&nbsp;/g, '        ')
   }
 
-  handleContent(content) {
-    const length = content.length
-    var array = []
-    let x = 0,y,m = 0
-    while (x < length) {
-      let _array = []
-      for (let i = 0; i <= 16; i++) {
-        let str_spa = content.substring(x, x + 1)
-        let str_sto = content.substring(x, x + 18)
-        const re = /^\s+$/
-        if (str_sto.indexOf('”') != -1) {
-          y = x + str_sto.indexOf('”') + 1
-          _array[i] = content.substring(x, y)
-          x = y
-          continue
-        }
-        else if (str_sto.indexOf('。') != -1 ) {
-          y = x + str_sto.indexOf('。') + 1
-          if (re.exec(content.substring(y, y + 1))) {
-            y = x + str_sto.indexOf('。') + 1
-            _array[i] = content.substring(x, y)
-            x = y
-            continue
-          }
-          else {
-            if (str_sto.indexOf('！') != -1) {
-              y = x + str_sto.indexOf('！') + 1
-              _array[i] = content.substring(x, y)
-              x = y
-              continue
-            }
-            else {
-              y = x + 18
-              _array[i] = content.substring(x, y)
-              x = y
-              continue
-            }
-          }
-        }
-        else if (str_sto.indexOf('！') != -1) {
-          y = x + str_sto.indexOf('！') + 1
-          if (re.exec(content.substring(y, y + 1))) {
-            y = x + str_sto.indexOf('！') + 1
-            _array[i] = content.substring(x, y)
-            x = y
-            continue
-          }
-          else {
-            y = x + 18
-            _array[i] = content.substring(x, y)
-            x = y
-            continue
-          }
-        }
-        else if (str_sto.indexOf('？') != -1){
-          y = x + str_sto.indexOf('？') + 1
-          if (re.exec(content.substring(y, y + 1))) {
-            y = x + str_sto.indexOf('？') + 1
-            _array[i] = content.substring(x, y)
-            x = y
-            continue
-          }
-          else {
-            y = x + 18
-            _array[i] = content.substring(x, y)
-            x = y
-            continue
-          }
-        }
-        else if (re.exec(str_spa)) {
-          y = x + 24
-          if (content.substring(x,y).indexOf('。') != -1) {
-            y = x + content.substring(x,y).indexOf('。') + 1
-            _array[i] = content.substring(x, y)
-            x = y
-            continue
-          }
-          _array[i] = content.substring(x, y)
-          x = y
-          continue
-        }
-        else {
-          y = x + 18
-          _array[i] = content.substring(x, y)
-          x = y
-        }
-      }
-      array[m] = _array
-      m++
-    }
-    // console.log((m - 1) * 375);
-    return array
-  }
-
-
 }
 
 const styles = StyleSheet.create({
@@ -397,7 +485,9 @@ const styles = StyleSheet.create({
 
 function mapStateToProps(state) {
   return {
-    chapterContent: state.chapterContent,
+    firstRenderChapters: state.firstRenderChapters,
+    directory: state.directory,
+    chapterInfo: state.chapterInfo,
     navigationParams: state.navigationParams,
   };
 }

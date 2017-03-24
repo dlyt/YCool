@@ -22,4 +22,4 @@ IOS  6S
 
 ##License
 
-MIT
+仅供学习使用

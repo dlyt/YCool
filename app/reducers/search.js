@@ -20,7 +20,6 @@ export const searchedNovelList = createReducer({}, {
 });
 
 export const searchedImg = createReducer({}, {
-
   [types.SEND_IMG](state, action) {
     return action.imgUrl
   },

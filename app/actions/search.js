@@ -47,6 +47,7 @@ export function searchNovelInfo(name, url) {
       .then((data) => {
         Request.post('/novels/acquire', json, data)
           .then((data) => {
+            console.log(data);
             dispatch(setSearchNovelInfo({novelInfo: data.novelInfo}))
           })
       })

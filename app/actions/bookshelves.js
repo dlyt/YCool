@@ -6,12 +6,12 @@ export function getBookshelf(uuid) {
 
   return (dispatch, getState) => {
     const json = { user: {uuid: uuid}}
-    return AsyncStorage.getItem('userToken')
+    return AsyncStorage.getItem(`userToken`)
       .then((data) => {
         if (!data) {
           Request.post('/users/tourists', json)
             .then((_data) => {
-              AsyncStorage.setItem('userToken', _data.token)
+              AsyncStorage.setItem(`userToken`, _data.token)
               dispatch(setSearchedBookshelves({bookshelf: ''}));
             })
         }

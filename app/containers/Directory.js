@@ -41,28 +41,15 @@ class Directory extends Component{
 
   changeOrder() {
     if (this.state.order === 1) {
-      this.setState({
-        order: -1
-      })
+      this.setState({order: -1})
     }
     else {
-      this.setState({
-        order: 1
-      })
+      this.setState({order: 1})
     }
     this.props.getDirectory(this.props.navigationParams.id, this.state.order)
   }
-  // <ScrollView style={styles.scrollSection}
-  //   showsVerticalScrollIndicator={false}>
-  //   {this.directoryList().map((item, index) => {
-  //       return (
-  //
-  //       )
-  //   })}
-  // </ScrollView>
 
   renderRow(item) {
-    console.log(item);
     return(
       <TouchableOpacity
         key={item._id}
