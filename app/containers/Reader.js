@@ -45,7 +45,7 @@ class Reader extends Component {
   }
 
   componentWillMount() {
-    this.props.getDirectory(this.uuid)
+    // this.props.getDirectory(this.uuid)
     this.props.getFirstRenderChapters(this.uuid)
   }
 
@@ -88,7 +88,7 @@ class Reader extends Component {
   // }
 
   componentDidMount() {
-    console.log(this.props.firstRenderChapters);
+    // console.log(this.props.firstRenderChapters);
   }
 
   shouldComponentUpdate(nextProps, nextState) {
@@ -146,20 +146,17 @@ class Reader extends Component {
       dataSource: this.state.dataSource.cloneWithRows(this._data),
       searching: false
     })
-    // console.log(this.state.searching);
   }
 
   componentWillUpdate(nextProps, nextState) {
-    // console.log(nextState.first);
-    console.log(1);
     if (Object.keys(this.props.firstRenderChapters).length !== 0 && nextState.first) {
       this.setState({
         first: false
       })
       let progress = this.props.firstRenderChapters.progress
       this.number = this.props.firstRenderChapters.chapters[0].number
-      let listView = this.refs.listView
-      listView.scrollTo({x: progress * 375, y: 0, animated: false})
+      let scrollView = this.refs.scrollView
+      scrollView.scrollTo({x: progress * 375, y: 0, animated: false})
     }
   }
 
@@ -172,8 +169,6 @@ class Reader extends Component {
     if (this.count === 0) {
       this.count = (this.currentChapter - 1) * 375
     }
-    console.log(x);
-    // console.log(this.count);
     if ( x > this.count) {
       this.count += this.nextChapter * 375
       let json = {
@@ -238,11 +233,9 @@ class Reader extends Component {
     return(
       <ListView
         enableEmptySections
-        ref='listView'
         horizontal={true}
         pagingEnabled={true}
         initialListSize={1}
-        onScroll={(e)=>this.handleScroll(e)}
         showsHorizontalScrollIndicator={false}
         showsVerticalScrollIndicator={false}
         dataSource={this.state.dataSource.cloneWithRows(this._data)}
@@ -306,6 +299,7 @@ class Reader extends Component {
           ref='scrollView'
           scrollEventThrottle={800}
           horizontal={true}
+          onScroll={(e)=>this.handleScroll(e)}
           showsHorizontalScrollIndicator={false}
           showsVerticalScrollIndicator={false}
           pagingEnabled={true} >
