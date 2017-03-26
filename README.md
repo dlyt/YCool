@@ -16,9 +16,15 @@ npm install
 ```
 注意导入的2个包
 
-react-native-device-info 需要配置
+  react-native-device-info 需要配置
+    1. 右击选择项目名称 选择Add Files to '你的项目名'
+    2. 进入node_modules/react-native-device-info
+    3. 添加 .xcodeproj文件
+    4. 在Xcode中点击你的工程名字——>Build Phases——>Link Binary With Libraries——>点击 '+'号按钮，添加libRNDeviceInfo.a文件
 
-react-native-swipeout 需要替换一下index.js文件 [参考网站](https://github.com/dancormier/react-native-swipeout/issues/108)
+  react-native-swipeout 需要替换一下这个包里的index.js文件
+
+  [index.js.zip](https://github.com/dancormier/react-native-swipeout/files/340703/index.js.zip)
 
 ##开发环境
 

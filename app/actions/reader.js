@@ -20,6 +20,8 @@ export function getFirstRenderChapters(id) {
   }
 }
 
+
+
 export function getChapter(id, num) {
   const json = {
     novelId: id,

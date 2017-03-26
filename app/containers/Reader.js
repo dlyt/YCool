@@ -15,6 +15,7 @@ import {
   ScrollView,
   ListView,
   TouchableOpacity,
+  AsyncStorage,
   PanResponder,
 } from 'react-native'
 import Dimensions from 'Dimensions'
@@ -42,6 +43,9 @@ class Reader extends Component {
     this.currentChapter = ''
     this.nextChapter = ''
     this.number = 0
+    this.x = 0
+    this.a = 0
+    this.i = 0
   }
 
   componentWillMount() {
@@ -51,6 +55,7 @@ class Reader extends Component {
 
   getChapterContent() {
     const that = this
+    console.log(this.props.firstRenderChapters);
     let list = this.List()
     let arr = []
     if (list.length !== 0) {
@@ -90,15 +95,6 @@ class Reader extends Component {
   }
 
   shouldComponentUpdate(nextProps, nextState) {
-    // console.log(1);
-    // console.log(nextState);
-    // if (Object.keys(this.props.firstRenderChapters).length !== 0 ) {
-    //   // nextState.first = false
-    //   let progress = this.props.firstRenderChapters.progress
-    //   this.number = this.props.firstRenderChapters.chapters[0].number
-    //   let listView = this.refs.listView
-    //   listView.scrollResponderScrollTo({x: progress * 375, y: 0, animated: false})
-    // }
     return true
   }
 
@@ -108,10 +104,6 @@ class Reader extends Component {
       key: 'Directory',
       id: this.props.navigationParams.id,
     })
-  }
-
-  directoryList() {
-    return Object.keys(this.props.directory).map(key => this.props.directory[key])
   }
 
   goBack() {
@@ -131,21 +123,55 @@ class Reader extends Component {
   }
 
   _unshiftData(newData) {
+    const that = this
     newData = newData.concat(this._data)
     this._data = newData
-    this.setState({
-      dataSource: this.state.dataSource.cloneWithRows(this._data),
-      searching: false
-    })
+    setTimeout(function () {
+      that.setState({
+        dataSource: that.state.dataSource.cloneWithRows(that._data),
+        searching: false
+      })
+    }, 300);
   }
 
   componentWillUpdate(nextProps, nextState) {
+    const that = this
     if (Object.keys(this.props.firstRenderChapters).length !== 0 && nextState.first) {
       this.setState({
         first: false
       })
-      let progress = this.props.firstRenderChapters.progress
-      this.number = this.props.firstRenderChapters.chapters[0].number
+
+      let progress = nextProps.firstRenderChapters.progress
+      this.number = nextProps.firstRenderChapters.chapters[0].number
+      const list = Object.keys(nextProps.firstRenderChapters).map(key => nextProps.firstRenderChapters[key])
+      let arr = []
+      if (list.length !== 0) {
+        let content = that.nbsp2Space(list[0][0].content)
+        let _arr = Util.handleContent(content)
+        this.currentChapter = _arr.length
+        _arr.forEach( function(_item) {
+          let chapterInfo = {
+            title: list[0][0].title,
+            num: list[0][0].number,
+            content: _item
+          }
+          arr.push(chapterInfo)
+        })
+        content = that.nbsp2Space(list[0][1].content)
+        _arr = Util.handleContent(content)
+        this.nextChapter = _arr.length
+        _arr.forEach( function(_item) {
+          let chapterInfo = {
+            title: list[0][1].title,
+            num: list[0][1].number,
+            content: _item
+          }
+          arr.push(chapterInfo)
+        })
+      }
+      this._data = arr
+      console.log(progress);
+      console.log(this.number);
       let scrollView = this.refs.scrollView
       scrollView.scrollTo({x: progress * 375, y: 0, animated: false})
     }
@@ -157,10 +183,21 @@ class Reader extends Component {
     const that = this
     let listView = this.refs.listView
     let x = e.nativeEvent.contentOffset.x
+
     if (this.count === 0) {
       this.count = (this.currentChapter - 1) * 375
     }
+    // console.log(this.i);
+    this.x = x
+    // this.x = x - a
+    // console.log(a);
+    // console.log(this.x);
+    // console.log(this.count);
+    // console.log(this.a);
+    // console.log(this.count);
+    // console.log(this.x - this.a);
     if ( x > this.count) {
+      this.a = this.count
       this.count += this.nextChapter * 375
       let json = {
         novelId: that.uuid,
@@ -190,7 +227,9 @@ class Reader extends Component {
         alert('已是第一页')
     }
 
+
     if (x < 0) {
+      this.i = 1
       let json = {
         novelId: that.uuid,
         num: that.number - 1
@@ -218,9 +257,6 @@ class Reader extends Component {
   }
 
   renderListView () {
-    if (this._data.length === 0) {
-      this._data = this.getChapterContent()
-    }
     return(
       <ListView
         enableEmptySections
@@ -277,7 +313,9 @@ class Reader extends Component {
             {rowData.num}/1022
           </Text>
         </View>
+
       </View>
+
     )
   }
 
@@ -290,7 +328,6 @@ class Reader extends Component {
         onPress={ () => this.show() }>
           {this.renderContent(rowData)}
         </TouchableOpacity>
-        { this.state.hide ? null : this.showReaderOptions() }
        </View>
     )
   }
@@ -308,9 +345,41 @@ class Reader extends Component {
           pagingEnabled={true} >
             {this.state.searching ? this.loading() : this.renderListView()}
           </ScrollView>
+          { this.state.hide ? null : this.showReaderOptions() }
       </View>
     );
   }
+
+  componentWillUnmount() {
+    if (this.a !== 0) {
+      this.a = this.a + 375
+    }
+
+    if (this.i === 1) {
+      this.a = this.a + 750
+    }
+
+    const json = {
+      novel: {
+        id: this.uuid,
+        num: this.number,
+        x: this.x - this.a
+      }
+    }
+
+    AsyncStorage.getItem('userToken')
+      .then((token) => {
+        Request.post(`/bookshelfs/change`, json, token)
+          .then((res) => {
+            return true
+          })
+      })
+      .catch( (e) => {
+        console.log(e);
+      })
+      // this.props.firstRenderChapters = {}
+  }
+
   // {this.state.searching ? this.loading() : this.renderListView()}
   showReaderOptions(){
     return (
@@ -322,19 +391,15 @@ class Reader extends Component {
               }),
             }]
           }}>
-
           <TouchableOpacity
           style={styles.alertTop}
-          onPress={ () => { this.goBack() } }
-          >
+          onPress={ () => { this.goBack() } }>
             <Image style={styles.backImg} source={require('../imgs/back.png')} />
           </TouchableOpacity>
         </Animated.View>
         <TouchableOpacity
         style={{height: Util.size.height - 140}}
-        onPress={this.iknow.bind(this)}
-        >
-
+        onPress={this.iknow.bind(this)}>
         </TouchableOpacity>
         <Animated.View style={[styles.alertFoot , {transform: [{
               translateY: this.state.offset.interpolate({
