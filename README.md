@@ -17,6 +17,7 @@ npm install
 注意导入的2个包
 
   react-native-device-info 需要配置
+  
     1. 右击选择项目名称 选择Add Files to '你的项目名'
     2. 进入node_modules/react-native-device-info
     3. 添加 .xcodeproj文件

@@ -1,7 +1,8 @@
 import React, { Component } from 'react'
-import { connect } from 'react-redux';
-import { ActionCreators } from '../actions';
-import { bindActionCreators } from 'redux';
+import { connect } from 'react-redux'
+import { ActionCreators } from '../actions'
+import { bindActionCreators } from 'redux'
+import Request from '../lib/request'
 import {
   StyleSheet,
   Text,
@@ -10,7 +11,8 @@ import {
   NavigatorIOS,
   Image,
   TouchableOpacity,
-  ListView
+  ListView,
+  AsyncStorage
 } from 'react-native';
 
 import Util from '../util'
@@ -34,9 +36,27 @@ class Directory extends Component{
     return Object.keys(this.props.directory).map(key => this.props.directory[key])
   }
 
-  goReader(id) {
-    this.props.getChapterDetail(id)
-    this.props.navigateBack({id: id})
+  goReader(num) {
+    const id = this.props.navigationParams.id
+    const json = {
+      novel: {
+        id: id,
+        num: num,
+        x: 0
+      }
+    }
+
+    AsyncStorage.getItem('userToken')
+      .then((token) => {
+        Request.post(`/bookshelfs/change`, json, token)
+          .then((res) => {
+            return true
+          })
+      })
+      .catch( (e) => {
+        console.log(e);
+      })
+    this.props.navigateBack({id: id, first: true})
   }
 
   changeOrder() {
@@ -54,7 +74,7 @@ class Directory extends Component{
       <TouchableOpacity
         key={item._id}
         style={[styles.item, styles.row]}
-        onPress={ () => {this.goReader(item._id)}  }>
+        onPress={ () => {this.goReader(item.number)}  }>
           <View style={{justifyContent: 'center',marginLeft: 10}}>
             <Text style={{color: '#B9B9B9',}}>
               {item.number + 1}.

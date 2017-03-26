@@ -49,13 +49,11 @@ class Reader extends Component {
   }
 
   componentWillMount() {
-    // this.props.getDirectory(this.uuid)
     this.props.getFirstRenderChapters(this.uuid)
   }
 
   getChapterContent() {
     const that = this
-    console.log(this.props.firstRenderChapters);
     let list = this.List()
     let arr = []
     if (list.length !== 0) {
@@ -103,6 +101,7 @@ class Reader extends Component {
     this.props.navigate({
       key: 'Directory',
       id: this.props.navigationParams.id,
+      name: this.props.navigationParams.name
     })
   }
 
@@ -136,6 +135,45 @@ class Reader extends Component {
 
   componentWillUpdate(nextProps, nextState) {
     const that = this
+    if (nextProps.navigationParams.first) {
+      nextProps.navigationParams.first = false
+      AsyncStorage.getItem('userToken')
+        .then((token) => {
+          Request.get(`/chapters/firstRender/${that.uuid}`, '', token)
+            .then((data) => {
+              let progress = data.response.progress
+              this.number = data.response.chapters[0].number
+              const lists = data.response.chapters
+              let arr = []
+              let content = that.nbsp2Space(lists[0].content)
+              let _arr = Util.handleContent(content)
+              that.currentChapter = _arr.length
+              _arr.forEach( function(_item) {
+                let chapterInfo = {
+                  title: lists[0].title,
+                  num: lists[0].number,
+                  content: _item
+                }
+                arr.push(chapterInfo)
+              })
+              content = that.nbsp2Space(lists[1].content)
+              _arr = Util.handleContent(content)
+              that.nextChapter = _arr.length
+              _arr.forEach( function(_item) {
+                let chapterInfo = {
+                  title: lists[1].title,
+                  num: lists[1].number,
+                  content: _item
+                }
+                arr.push(chapterInfo)
+              })
+              that._data = arr
+              let scrollView = that.refs.scrollView
+              scrollView.scrollTo({x: progress * 375, y: 0, animated: false})
+            })
+        })
+
+    }
     if (Object.keys(this.props.firstRenderChapters).length !== 0 && nextState.first) {
       this.setState({
         first: false
@@ -170,8 +208,6 @@ class Reader extends Component {
         })
       }
       this._data = arr
-      console.log(progress);
-      console.log(this.number);
       let scrollView = this.refs.scrollView
       scrollView.scrollTo({x: progress * 375, y: 0, animated: false})
     }
@@ -187,15 +223,7 @@ class Reader extends Component {
     if (this.count === 0) {
       this.count = (this.currentChapter - 1) * 375
     }
-    // console.log(this.i);
     this.x = x
-    // this.x = x - a
-    // console.log(a);
-    // console.log(this.x);
-    // console.log(this.count);
-    // console.log(this.a);
-    // console.log(this.count);
-    // console.log(this.x - this.a);
     if ( x > this.count) {
       this.a = this.count
       this.count += this.nextChapter * 375
@@ -313,7 +341,6 @@ class Reader extends Component {
             {rowData.num}/1022
           </Text>
         </View>
-
       </View>
 
     )

@@ -57,7 +57,7 @@ class Novel extends Component {
       autoClose={true}
       backgroundColor={'#ffffff'}>
         <TouchableOpacity
-           onPress={ () => this.props.navigate({ key: 'Reader', id: list.novel._id}) }
+           onPress={ () => this.props.navigate({ key: 'Reader', id: list.novel._id, name: list.novel.name}) }
            style={[styles.item, styles.row]}>
           <View style={styles.left}>
             <Image style={styles.img} source={{uri: list.novel.img}} resizeMode="contain" />
