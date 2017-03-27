@@ -1,15 +1,15 @@
-#YCool
+# YCool
 
-##效果图
+## 效果图
 
 ![Octicons](http://p1.bqimg.com/1949/1cc0df484d580e51.gif)
 
 
-##后台API地址
+## 后台API服务器地址
 
 https://github.com/dlyt/YCool_Server.git
 
-##安装
+## 安装
 ```bash
 git clone https://github.com/dlyt/YCool.git
 npm install
@@ -17,7 +17,7 @@ npm install
 注意导入的2个包
 
   react-native-device-info 需要配置
-  
+
     1. 右击选择项目名称 选择Add Files to '你的项目名'
     2. 进入node_modules/react-native-device-info
     3. 添加 .xcodeproj文件
@@ -27,11 +27,11 @@ npm install
 
   [index.js.zip](https://github.com/dancormier/react-native-swipeout/files/340703/index.js.zip)
 
-##开发环境
+## 开发环境
 
 IOS  6S
 
 
-##License
+## License
 
 仅供学习使用
