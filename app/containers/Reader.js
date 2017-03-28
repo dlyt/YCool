@@ -52,36 +52,6 @@ class Reader extends Component {
     this.props.getFirstRenderChapters(this.uuid)
   }
 
-  getChapterContent() {
-    const that = this
-    let list = this.List()
-    let arr = []
-    if (list.length !== 0) {
-      let content = that.nbsp2Space(list[0][0].content)
-      let _arr = Util.handleContent(content)
-      this.currentChapter = _arr.length
-      _arr.forEach( function(_item) {
-        let chapterInfo = {
-          title: list[0][0].title,
-          num: list[0][0].number,
-          content: _item
-        }
-        arr.push(chapterInfo)
-      })
-      content = that.nbsp2Space(list[0][1].content)
-      _arr = Util.handleContent(content)
-      this.nextChapter = _arr.length
-      _arr.forEach( function(_item) {
-        let chapterInfo = {
-          title: list[0][1].title,
-          num: list[0][1].number,
-          content: _item
-        }
-        arr.push(chapterInfo)
-      })
-    }
-    return arr
-  }
 
   // componentWillReceiveProps(nextProps) {
   //   console.log(nextProps);
@@ -156,17 +126,20 @@ class Reader extends Component {
                 }
                 arr.push(chapterInfo)
               })
-              content = that.nbsp2Space(lists[1].content)
-              _arr = Util.handleContent(content)
-              that.nextChapter = _arr.length
-              _arr.forEach( function(_item) {
-                let chapterInfo = {
-                  title: lists[1].title,
-                  num: lists[1].number,
-                  content: _item
-                }
-                arr.push(chapterInfo)
-              })
+              console.log(lists.length);
+              if (lists.length === 2) {
+                content = that.nbsp2Space(lists[1].content)
+                _arr = Util.handleContent(content)
+                that.nextChapter = _arr.length
+                _arr.forEach( function(_item) {
+                  let chapterInfo = {
+                    title: lists[1].title,
+                    num: lists[1].number,
+                    content: _item
+                  }
+                  arr.push(chapterInfo)
+                })
+              }
               that._data = arr
               let scrollView = that.refs.scrollView
               scrollView.scrollTo({x: progress * 375, y: 0, animated: false})
@@ -182,6 +155,7 @@ class Reader extends Component {
       let progress = nextProps.firstRenderChapters.progress
       this.number = nextProps.firstRenderChapters.chapters[0].number
       const list = Object.keys(nextProps.firstRenderChapters).map(key => nextProps.firstRenderChapters[key])
+
       let arr = []
       if (list.length !== 0) {
         let content = that.nbsp2Space(list[0][0].content)
@@ -195,17 +169,19 @@ class Reader extends Component {
           }
           arr.push(chapterInfo)
         })
-        content = that.nbsp2Space(list[0][1].content)
-        _arr = Util.handleContent(content)
-        this.nextChapter = _arr.length
-        _arr.forEach( function(_item) {
-          let chapterInfo = {
-            title: list[0][1].title,
-            num: list[0][1].number,
-            content: _item
-          }
-          arr.push(chapterInfo)
-        })
+        if(list[0].length === 2) {
+          content = that.nbsp2Space(list[0][1].content)
+          _arr = Util.handleContent(content)
+          this.nextChapter = _arr.length
+          _arr.forEach( function(_item) {
+            let chapterInfo = {
+              title: list[0][1].title,
+              num: list[0][1].number,
+              content: _item
+            }
+            arr.push(chapterInfo)
+          })
+        }
       }
       this._data = arr
       let scrollView = this.refs.scrollView
@@ -213,42 +189,77 @@ class Reader extends Component {
     }
   }
 
+  getContent(content) {
+    let arr = []
+    let _content = this.nbsp2Space(content)
+    let _arr = Util.handleContent(_content)
+    this.currentChapter = this.nextChapter
+    this.nextChapter = _arr.length
+    _arr.forEach( function(_item) {
+      let _chapterInfo = {
+        title: chapterInfo.title,
+        num: chapterInfo.number,
+        content: _item
+      }
+      arr.push(_chapterInfo)
+    })
+    return arr
+  }
+
   handleScroll(e) {
     let arr = []
     let chapterInfo
-    const that = this
     let listView = this.refs.listView
     let x = e.nativeEvent.contentOffset.x
-
+    const that = this
     if (this.count === 0) {
       this.count = (this.currentChapter - 1) * 375
     }
+
     this.x = x
     if ( x > this.count) {
       this.a = this.count
       this.count += this.nextChapter * 375
-      let json = {
-        novelId: that.uuid,
-        num: that.number + 2
-      }
-      Request.post(`/chapters`, json)
-        .then((data) => {
-          chapterInfo = data.response
-          that.number = that.number + 1
-          let content = that.nbsp2Space(chapterInfo.content)
-          let _arr = Util.handleContent(content)
-          that.currentChapter = that.nextChapter
-          that.nextChapter = _arr.length
-          _arr.forEach( function(_item) {
-            let _chapterInfo = {
-              title: chapterInfo.title,
-              num: chapterInfo.number,
-              content: _item
-            }
-            arr.push(_chapterInfo)
+      if (this.number + 2 < parseInt(this.props.firstRenderChapters.countChapter)) {
+        let json = {
+          novelId: that.uuid,
+          num: that.number + 2
+        }
+        Request.post(`/chapters`, json)
+          .then((data) => {
+            chapterInfo = data.response
+            that.number = that.number + 1
+            const arr = that.getContent(chapterInfo.content)
+            that._concatData(arr)
           })
-          that._concatData(arr)
-        })
+      }
+      else {
+        this.a = 0
+      }
+
+      // if (this.number + 2 < parseInt(this.props.firstRenderChapters.countChapter)) {
+      //   console.log(1);
+      //   this.a = this.count
+      //   this.count += this.nextChapter * 375
+      //   let json = {
+      //     novelId: that.uuid,
+      //     num: that.number + 2
+      //   }
+      //   Request.post(`/chapters`, json)
+      //     .then((data) => {
+      //       chapterInfo = data.response
+      //       that.number = that.number + 1
+      //       const arr = that.getContent(chapterInfo.content)
+      //       that._concatData(arr)
+      //     })
+      // }
+      // else {
+      //   console.log(2);
+      //   this.a = this.count
+      //   that.number = that.number + 1
+      //   this.count += this.currentChapter * 375
+      // }
+
     }
 
     if (x < 0 && this.number === 0) {
@@ -282,6 +293,8 @@ class Reader extends Component {
           that._unshiftData(arr)
         })
     }
+    console.log(this.x);
+    console.log(this.a);
   }
 
   renderListView () {
@@ -382,9 +395,9 @@ class Reader extends Component {
       this.a = this.a + 375
     }
 
-    if (this.i === 1) {
-      this.a = this.a + 750
-    }
+    // if (this.i === 1) {
+    //   this.a = this.a + 750
+    // }
 
     const json = {
       novel: {
