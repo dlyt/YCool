@@ -5,5 +5,4 @@ export const searchedBookshelves = createReducer({}, {
   [types.SET_SEARCHED_BOOKSHELVES](state, action) {
     return action.bookshelf
   },
-
-});
+})

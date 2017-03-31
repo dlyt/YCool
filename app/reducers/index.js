@@ -1,4 +1,4 @@
-import { combineReducers } from 'redux';
+import { combineReducers } from 'redux'
 import * as bookshelvesReducer from './bookshelves'
 import * as NavigationReducer from './navigation'
 import * as ReaderReducer from './reader'
@@ -9,4 +9,4 @@ export default combineReducers(Object.assign(
   NavigationReducer,
   ReaderReducer,
   SearchReducer,
-));
+))

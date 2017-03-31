@@ -27,6 +27,7 @@ class Novel extends Component {
         rowHasChanged: (row1, row2) => row1 !== row2
       })
     }
+    this.closeSwipeout = this.closeSwipeout.bind(this)
   }
 
   componentWillMount() {
@@ -35,6 +36,10 @@ class Novel extends Component {
 
   bookshelfLists() {
     return Object.keys(this.props.searchedBookshelves).map(key => this.props.searchedBookshelves[key])
+  }
+
+  closeSwipeout() {
+    // console.log(this);
   }
 
   delectNovel(id) {
@@ -52,6 +57,7 @@ class Novel extends Component {
     ]
     return (
       <Swipeout
+      refs='Swipeout'
       key={list._id}
       right={swipeoutBtns}
       autoClose={true}
@@ -76,11 +82,17 @@ class Novel extends Component {
   }
 
   renderBookshelfLists(lists) {
-    return (<ListView
-         enableEmptySections
-         style={styles.scrollSection}
-         dataSource={this.state.dataSource.cloneWithRows(lists)}
-         renderRow={this.renderRow.bind(this)} />)
+    return (
+      <TouchableOpacity
+        style={styles.scrollSection}
+        onPress={this.closeSwipeout}>
+        <ListView
+             enableEmptySections
+             dataSource={this.state.dataSource.cloneWithRows(lists)}
+             renderRow={this.renderRow.bind(this)} />
+      </TouchableOpacity>
+
+    )
   }
 
   render() {

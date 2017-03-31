@@ -5,9 +5,13 @@
 ![Octicons](http://p1.bqimg.com/1949/1cc0df484d580e51.gif)
 
 
-## 后台API服务器地址
+## 后台API服务器代码地址
 
 https://github.com/dlyt/YCool_Server.git
+
+## 功能列表
+- [x] 左滑删除
+
 
 ## 安装
 ```bash
