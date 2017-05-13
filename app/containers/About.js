@@ -28,10 +28,6 @@ class About extends Component {
     }
   }
 
-  componentWillMount() {
-
-  }
-
   getImg({type}) {
     var that = this
     this.props.searchImg()
@@ -70,51 +66,15 @@ class About extends Component {
     )
   }
 
-  showButton() {
-    return(
-      <View style={styles.scrollSection}>
-        <View style={{flex: 0.1}}>
-        </View>
-        <View style={{flex: 0.3}}>
-          <View style={styles.button}>
-            <TouchableOpacity onPress={ () => this.getImg({type: '性感'})}>
-              <Text style={styles.text}>
-                性感
-              </Text>
-            </TouchableOpacity>
-          </View>
-          <View style={styles.button}>
-            <TouchableOpacity onPress={ () => this.getImg({type: '清纯'})}>
-              <Text style={styles.text}>
-                清纯
-              </Text>
-            </TouchableOpacity>
-          </View>
-          <View style={styles.button}>
-            <TouchableOpacity onPress={ () => this.getImg({type: '台湾'})}>
-              <Text style={styles.text}>
-              台湾
-              </Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-        <View style={{flex: 0.3}}>
-        </View>
-      </View>
-
-    )
-  }
-
   render() {
     return (
       <View style={styles.scene}>
         <View style={styles.nav}>
           <View style={[styles.title]}>
-            <Text style={styles.titleText}>福利</Text>
+            <Text style={styles.titleText}>未完待续</Text>
           </View>
         </View>
-        {this.state.show ? this.showImg() : this.showButton()}
-        </View>
+      </View>
     )
   }
 }

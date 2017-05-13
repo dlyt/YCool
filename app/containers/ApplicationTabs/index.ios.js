@@ -1,16 +1,20 @@
-import { View, TabBarIOS, TabBarItemIOS } from 'react-native';
-import React, { Component } from 'react';
-import { bindActionCreators } from 'redux';
-import { connect } from 'react-redux';
-import { ActionCreators } from '../../actions';
-import Novel from '../Novel';
-import About from '../About';
+import About from '../About'
+import Novel from '../Novel'
+import { connect } from 'react-redux'
+import React, { Component } from 'react'
+import { bindActionCreators } from 'redux'
+import { ActionCreators } from '../../actions'
+import { View, TabBarIOS, TabBarItemIOS } from 'react-native'
 
 class ApplicationTabs extends Component {
 
   constructor(props) {
     super(props)
     this.state = { index: 0 }
+  }
+
+  componentWillMount() {
+    this.props.getBookshelf(DeviceInfo.getUniqueID())
   }
 
   onPress(index) {

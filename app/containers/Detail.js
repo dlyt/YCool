@@ -28,8 +28,10 @@ class Detail extends Component{
 
   orderNovel(id, join)  {
     if (!join) {
-      this.props.orderNovel(id)
-      this.props.getBookshelf(DeviceInfo.getUniqueID())
+      this.props.orderNovel(id).then(
+        (res) => this.props.getBookshelf(DeviceInfo.getUniqueID()),
+        (err) => { console.log(err) }
+      )
       this.props.navigateReset([{key: 'ApplicationTabs'}], 0)
     }
   }
