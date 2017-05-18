@@ -1,27 +1,42 @@
 import axios from 'axios'
 import * as types from './types'
 import { AsyncStorage } from 'react-native'
+import setAuthorizationToken from '../lib/setAuthorizationToken'
 
-export function getBookshelf(uuid) {
+export function getBookshelfFirst() {
   return (dispatch, getState) => {
-    const json = { user: {uuid: uuid}}
-    return AsyncStorage.getItem(`userToken`)
-      .then((data) => {
-        if (!data) {
+    AsyncStorage.getItem(`userToken`).then(
+      (res) => {
+        if (!res) {
           axios.post('/users/tourists', json)
-            .then((_data) => {
-              console.log(_data)
-              AsyncStorage.setItem(`userToken`, _data.token)
-              dispatch(setSearchedBookshelves({bookshelf: ''}));
+            .then((res) => {
+              setAuthorizationToken(res.token)
+              AsyncStorage.setItem(`userToken`, res.token)
             })
         }
-        else {
-          axios.get('/bookshelfs', '', data)
-            .then((_data) => {
-              dispatch(setSearchedBookshelves({bookshelf: _data.list}));
-            })
+        else{
+          setAuthorizationToken(res)
+          axios.get('/bookshelfs')
+            .then(
+              (res) => {
+                dispatch(setSearchedBookshelves({ bookshelf: res.data.list }));
+              },
+              (err) => console.log(err)
+            )
         }
-      })
+      }
+    )
+  }
+}
+
+export function getBookshelf() {
+  return (dispatch) => {
+    axios.get('/bookshelfs').then(
+      (res) => {
+        dispatch(setSearchedBookshelves({ bookshelf: res.data.list }));
+      },
+      (err) => console.log(err)
+    )
   }
 }
 
@@ -34,17 +49,16 @@ export function setSearchedBookshelves({ bookshelf }) {
 
 export function orderNovel(id) {
   return (dispatch, getState) => {
-    // AsyncStorage.getItem('userToken')
-    //   .then((data) => {
-    //     console.log(data)
-    //   })
-    Request.post('/bookshelfs/order', {id: id}, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjU4Yzk0OTk3ZDE4ZTIwMjRiNjYzNjBmYiIsImlhdCI6MTQ4OTgxMzYwNH0.kgCcISiRUTuagiaQMYO3cQ-R2sTo2z0X6HCpgSEkZq4')
+    return axios.post('/bookshelfs/order', {id: id})
   }
 }
 
 export function delect(id) {
   return (dispatch, getState) => {
-    Request.post('/bookshelfs/delect', {id: id})
-      .then((data) => {})
+    return axios.post('/bookshelfs/delect', {id: id})
   }
 }
+
+
+
+

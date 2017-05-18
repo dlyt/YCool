@@ -1,5 +1,5 @@
-import React, { Component } from 'react';
-import { connect } from 'react-redux';
+import React, { Component } from 'react'
+import { connect } from 'react-redux'
 import {
   PixelRatio,
   ScrollView,
@@ -12,10 +12,9 @@ import {
   TouchableOpacity,
   StyleSheet,
   RefreshControl,
-} from 'react-native';
-import { appStyle } from '../styles';
+} from 'react-native'
+import { appStyle } from '../styles'
 
-import DeviceInfo from 'react-native-device-info'
 import Swipeout from 'react-native-swipeout'
 
 
@@ -31,7 +30,7 @@ class Novel extends Component {
   }
 
   componentWillMount() {
-    this.props.getBookshelf(DeviceInfo.getUniqueID())
+    this.props.getBookshelfFirst()
   }
 
   bookshelfLists() {
@@ -43,8 +42,9 @@ class Novel extends Component {
   }
 
   delectNovel(id) {
-    this.props.delect(id)
-    this.props.getBookshelf(DeviceInfo.getUniqueID())
+    this.props.delect(id).then(
+      (res) => this.props.getBookshelf()
+    )
   }
 
   renderRow(list) {
@@ -116,7 +116,7 @@ class Novel extends Component {
           </View>
         </View>
           {this.renderBookshelfLists(lists)}
-        </View>
+      </View>
     )
   }
 }

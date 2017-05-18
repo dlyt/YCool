@@ -126,7 +126,6 @@ class Reader extends Component {
                 }
                 arr.push(chapterInfo)
               })
-              console.log(lists.length);
               if (lists.length === 2) {
                 content = that.nbsp2Space(lists[1].content)
                 _arr = Util.handleContent(content)
@@ -293,8 +292,6 @@ class Reader extends Component {
           that._unshiftData(arr)
         })
     }
-    console.log(this.x);
-    console.log(this.a);
   }
 
   renderListView () {
@@ -308,24 +305,25 @@ class Reader extends Component {
         showsVerticalScrollIndicator={false}
         dataSource={this.state.dataSource.cloneWithRows(this._data)}
         renderRow={this.renderRow.bind(this)}
-         />
+      />
     )
   }
 
-  List() {
-    return Object.keys(this.props.firstRenderChapters).map(key => this.props.firstRenderChapters[key])
-  }
+  // List() {
+  //   return Object.keys(this.props.firstRenderChapters).map(key => this.props.firstRenderChapters[key])
+  // }
 
   loading() {
     return(
       <View style={{flexDirection: 'row'}}>
         <TouchableOpacity
-        style={{height: Util.size.height,width: tabWidth}}
-        activeOpacity={1}
-        onPress={ () => this.show() }>
+          style={{height: Util.size.height,width: tabWidth}}
+          activeOpacity={1}
+          onPress={ () => this.show() }
+        >
           <Text>searching...</Text>
         </TouchableOpacity>
-       </View>
+      </View>
     )
   }
 
@@ -376,13 +374,14 @@ class Reader extends Component {
     return(
       <View style={styles.container} >
           <ScrollView
-          ref='scrollView'
-          scrollEventThrottle={800}
-          horizontal={true}
-          onScroll={(e)=>this.handleScroll(e)}
-          showsHorizontalScrollIndicator={false}
-          showsVerticalScrollIndicator={false}
-          pagingEnabled={true} >
+            ref='scrollView'
+            scrollEventThrottle={800}
+            horizontal={true}
+            onScroll={(e)=>this.handleScroll(e)}
+            showsHorizontalScrollIndicator={false}
+            showsVerticalScrollIndicator={false}
+            pagingEnabled={true} 
+          >
             {this.state.searching ? this.loading() : this.renderListView()}
           </ScrollView>
           { this.state.hide ? null : this.showReaderOptions() }

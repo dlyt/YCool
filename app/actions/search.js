@@ -1,14 +1,13 @@
 import { AsyncStorage } from 'react-native'
 import * as types from './types'
-import Request from '../lib/request'
-
+import axios from 'axios'
 
 export function searchNovelWords(text) {
   return (dispatch, getState) => {
-    Request.get('/novels/search/zh', {keyword: text})
-      .then((data) => {
-        dispatch(setSearchNovelWords({novelName: data.response.r}))
-      })
+    axios.get(`/novels/search/zh?keyword=${text}`)
+      .then(
+        (res) => dispatch(setSearchNovelWords({novelName: res.data.response.r}))
+     )
   }
 }
 
@@ -21,10 +20,10 @@ export function setSearchNovelWords({ novelName }) {
 
 export function searchNovelList(name) {
   return (dispatch, getState) => {
-    Request.get('/novels/search/bqk', {name: name})
-      .then((data) => {
-        dispatch(setSearchNovelList({name: data.response}))
-      })
+    axios.get(`/novels/search/bqk?name=${name}`)
+      .then(
+        (res) => dispatch(setSearchNovelList({name: res.data.response}))
+      )
   }
 }
 
@@ -43,16 +42,9 @@ export function searchNovelInfo(name, url) {
     }
   }
   return (dispatch, getState) => {
-    AsyncStorage.getItem('userToken')
-      .then((data) => {
-        Request.post('/novels/acquire', json, data)
-          .then((data) => {
-            dispatch(setSearchNovelInfo({novelInfo: data.novelInfo}))
-          })
-          .catch( (e) => {
-            console.log(e);
-          })
-      })
+    axios.post('/novels/acquire', json).then(
+      (res) => dispatch(setSearchNovelInfo({novelInfo: res.data.novelInfo}))
+    )
   }
 }
 
@@ -65,7 +57,7 @@ export function setSearchNovelInfo({ novelInfo }) {
 
 export function searchImg(type) {
   return (dispatch, getState) => {
-    Request.get('/test/img', {type: type})
+    axios.get('/test/img', {type: type})
       .then((data) => {
         dispatch(getImg({imgUrl: data.url}))
       })

@@ -1,26 +1,19 @@
-import { AsyncStorage } from 'react-native';
+import { AsyncStorage } from 'react-native'
 import * as types from './types'
-import Request from '../lib/request'
+import axios from 'axios'
 
 export function getFirstRenderChapters(id) {
   return (dispatch, getState) => {
-    AsyncStorage.getItem('userToken')
-      .then((token) => {
-        Request.get(`/chapters/firstRender/${id}`, '', token)
-          .then((res) => {
-            dispatch({
-              type: types.GET_FIRST_RENDER_CHAPTER,
-              firstRenderChapters: res.response
-            });
+    axios.get(`/chapters/firstRender/${id}`).then(
+      (res) => {
+        dispatch({
+            type: types.GET_FIRST_RENDER_CHAPTER,
+            firstRenderChapters: res.data.response
           })
-      })
-      .catch( (e) => {
-        console.log(e);
-      })
+      }
+    )
   }
 }
-
-
 
 export function getChapter(id, num) {
   const json = {
@@ -28,7 +21,7 @@ export function getChapter(id, num) {
     num: num
   }
   return (dispatch, getState) => {
-    return Request.post(`/chapters`, json)
+    return axios.post(`/chapters`, json)
       .then((data) => {
         dispatch({
           type: types.SET_CHAPTER_DETAIL,
@@ -44,9 +37,9 @@ export function setChapterDetail({ chapterContent }) {
 
 export function getNextChatperDetail(id) {
   return (dispatch, getState) => {
-    return Request.get(`/chapters/next/${id}`, '')
-      .then( (data) => {
-        dispatch(setNextChatperDetail({chapterContent: data.detail}));
+    return axios.get(`/chapters/next/${id}`)
+      .then( (res) => {
+        dispatch(setNextChatperDetail({chapterContent: res.data.detail}));
       })
   }
 }
@@ -60,9 +53,9 @@ export function setNextChatperDetail({ chapterContent }) {
 
 export function getLastChapterDetail(id) {
   return (dispatch, getState) => {
-    return Request.get(`/chapters/last/${id}`, '')
-      .then( (data) => {
-        dispatch(setLastChatperDetail({chapterContent: data.detail}));
+    return axios.get(`/chapters/last/${id}`)
+      .then( (res) => {
+        dispatch(setLastChatperDetail({chapterContent: res.data.detail}));
       })
   }
 }
@@ -76,9 +69,9 @@ export function setLastChatperDetail({ chapterContent }) {
 
 export function getDirectory(id, order = 1) {
   return (dispatch, getState) => {
-    Request.get(`/novels/directory/${id}`, {order: order})
-      .then( (data) => {
-        dispatch(setDirectory({results: data.results}));
+    axios.get(`/novels/directory/${id}?order=${order}`)
+      .then( (res) => {
+        dispatch(setDirectory({results: res.data.results}));
       })
   }
 }

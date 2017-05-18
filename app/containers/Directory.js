@@ -49,9 +49,6 @@ class Directory extends Component{
     AsyncStorage.getItem('userToken')
       .then((token) => {
         Request.post(`/bookshelfs/change`, json, token)
-          .then((res) => {
-            return true
-          })
       })
       .catch( (e) => {
         console.log(e);

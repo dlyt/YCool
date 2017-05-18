@@ -5,6 +5,7 @@ import React, { Component } from 'react'
 import { bindActionCreators } from 'redux'
 import { ActionCreators } from '../../actions'
 import { View, TabBarIOS, TabBarItemIOS } from 'react-native'
+import { AsyncStorage } from 'react-native'
 
 class ApplicationTabs extends Component {
 
@@ -14,7 +15,7 @@ class ApplicationTabs extends Component {
   }
 
   componentWillMount() {
-    this.props.getBookshelf(DeviceInfo.getUniqueID())
+   
   }
 
   onPress(index) {
@@ -26,7 +27,7 @@ class ApplicationTabs extends Component {
       <View style={ { flex: 1 } }>
         { React.createElement(component, this.props) }
       </View>
-    );
+    )
   }
 
   render() {
@@ -61,7 +62,7 @@ function mapStateToProps(state) {
 }
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators(ActionCreators, dispatch);
+  return bindActionCreators(ActionCreators, dispatch)
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(ApplicationTabs);
+export default connect(mapStateToProps, mapDispatchToProps)(ApplicationTabs)

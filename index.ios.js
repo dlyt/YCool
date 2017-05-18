@@ -1,4 +1,5 @@
 import reducer from './app/reducers'
+import axios from 'axios'
 import { Provider } from 'react-redux'
 import createLogger from 'redux-logger'
 import React, { Component } from 'react'
@@ -21,11 +22,7 @@ function configureStore(initialState) {
 
 const store = configureStore({})
 
-AsyncStorage.getItem(`userToken`).then( (res) => {
-  if (res) {
-    setAuthorizationToken(res)
-  }
-})
+axios.defaults.baseURL = 'http://localhost:5000'
 
 const App = () => (
   <Provider store={store}>
