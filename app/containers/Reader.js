@@ -9,22 +9,18 @@ import {
   Easing,
   View,
   Image,
-  TouchableHighlight,
   Text,
   StyleSheet,
   ScrollView,
   ListView,
   TouchableOpacity,
   AsyncStorage,
-  PanResponder,
 } from 'react-native'
 import Dimensions from 'Dimensions'
 
 const tabWidth = Dimensions.get('window').width;
 
-
 class Reader extends Component {
-
   constructor(props) {
     super(props)
     this.state={
@@ -188,7 +184,8 @@ class Reader extends Component {
     }
   }
 
-  getContent(content) {
+  getContent(chapterInfo) {
+    const content = chapterInfo.content
     let arr = []
     let _content = this.nbsp2Space(content)
     let _arr = Util.handleContent(_content)
@@ -228,7 +225,7 @@ class Reader extends Component {
           .then((data) => {
             chapterInfo = data.response
             that.number = that.number + 1
-            const arr = that.getContent(chapterInfo.content)
+            const arr = that.getContent(chapterInfo)
             that._concatData(arr)
           })
       }

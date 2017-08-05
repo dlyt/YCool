@@ -15,23 +15,6 @@ import {
 
 import Swipeout from 'react-native-swipeout'
 
-class Row extends Component {
-  _onClick() {
-    this.props.onClick(this.props.data);
-  }
-  render() {
-    return (
-     <TouchableWithoutFeedback onPress={this._onClick} >
-        <View style={styles.row}>
-          <Text style={styles.text}>
-            {this.props.data.text + ' (' + this.props.data.clicks + ' clicks)'}
-          </Text>
-        </View>
-      </TouchableWithoutFeedback>
-    );
-  }
-};
-
 class Novel extends Component {
   constructor(props) {
     super(props)
