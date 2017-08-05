@@ -4,24 +4,40 @@ import {
   PixelRatio,
   ScrollView,
   View,
-  TextInput,
   Image,
   Text,
   ListView,
-  TouchableHighlight,
   TouchableOpacity,
   StyleSheet,
   RefreshControl,
+  TouchableWithoutFeedback
 } from 'react-native'
-import { appStyle } from '../styles'
 
 import Swipeout from 'react-native-swipeout'
 
+class Row extends Component {
+  _onClick() {
+    this.props.onClick(this.props.data);
+  }
+  render() {
+    return (
+     <TouchableWithoutFeedback onPress={this._onClick} >
+        <View style={styles.row}>
+          <Text style={styles.text}>
+            {this.props.data.text + ' (' + this.props.data.clicks + ' clicks)'}
+          </Text>
+        </View>
+      </TouchableWithoutFeedback>
+    );
+  }
+};
 
 class Novel extends Component {
   constructor(props) {
     super(props)
     this.state = {
+      isRefreshing: false,
+      loaded: 0,
       dataSource: new ListView.DataSource({
         rowHasChanged: (row1, row2) => row1 !== row2
       })
@@ -83,16 +99,41 @@ class Novel extends Component {
 
   renderBookshelfLists(lists) {
     return (
-      <TouchableOpacity
-        style={styles.scrollSection}
-        onPress={this.closeSwipeout}>
-        <ListView
-             enableEmptySections
-             dataSource={this.state.dataSource.cloneWithRows(lists)}
-             renderRow={this.renderRow.bind(this)} />
-      </TouchableOpacity>
+      <ScrollView
+        style={styles.scrollview}
+        refreshControl={
+          <RefreshControl
+            refreshing={this.state.isRefreshing}
+            onRefresh={this._onRefresh.bind(this)}
+            tintColor="#ff0000"
+            title="Loading..."
+            titleColor="#00ff00"
+            colors={['#ff0000', '#00ff00', '#0000ff']}
+            progressBackgroundColor="#ffff00"
+          />
+        }>
+        <TouchableOpacity
+          style={styles.scrollSection}
+          onPress={this.closeSwipeout}>
+          <ListView
+              enableEmptySections
+              dataSource={this.state.dataSource.cloneWithRows(lists)}
+              renderRow={this.renderRow.bind(this)} />
+        </TouchableOpacity>
+      </ScrollView>
+    );
+  }
 
-    )
+   _onRefresh() {
+    this.setState({isRefreshing: true});
+    this.props.getBookshelfFirst()
+    this.setState({
+      loaded: this.state.loaded + 10,
+      isRefreshing: false,
+      dataSource: new ListView.DataSource({
+        rowHasChanged: (row1, row2) => row1 !== row2
+      })
+    });
   }
 
   render() {
@@ -115,7 +156,7 @@ class Novel extends Component {
             </TouchableOpacity>
           </View>
         </View>
-          {this.renderBookshelfLists(lists)}
+        {this.renderBookshelfLists(lists)}
       </View>
     )
   }

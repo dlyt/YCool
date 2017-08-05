@@ -1,5 +1,5 @@
-# YCool
-
+# 简介
+支持搜索小说、订阅小说、在线阅读
 ## 效果图
 
 ![Octicons](http://p1.bqimg.com/1949/1cc0df484d580e51.gif)
@@ -10,6 +10,7 @@
 https://github.com/dlyt/YCool_Server.git
 
 ## 功能列表
+- [x] 下拉刷新
 - [x] 左滑删除
 
 

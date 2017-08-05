@@ -8,7 +8,7 @@ export function getBookshelfFirst() {
     AsyncStorage.getItem(`userToken`).then(
       (res) => {
         if (!res) {
-          axios.post('/users/tourists', json)
+          axios.post('/users/tourists')
             .then((res) => {
               setAuthorizationToken(res.token)
               AsyncStorage.setItem(`userToken`, res.token)
