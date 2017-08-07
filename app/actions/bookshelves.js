@@ -1,6 +1,7 @@
 import axios from 'axios'
 import * as types from './types'
 import { AsyncStorage } from 'react-native'
+import DeviceInfo from 'react-native-device-info'
 import setAuthorizationToken from '../lib/setAuthorizationToken'
 
 export function getBookshelfFirst() {
@@ -8,10 +9,12 @@ export function getBookshelfFirst() {
     AsyncStorage.getItem(`userToken`).then(
       (res) => {
         if (!res) {
-          axios.post('/users/tourists')
+          const uuid = DeviceInfo.getUniqueID()
+          const json = { user: { uuid: uuid } }
+          axios.post('/users/tourists', json)
             .then((res) => {
-              setAuthorizationToken(res.token)
-              AsyncStorage.setItem(`userToken`, res.token)
+              setAuthorizationToken(res.data.token)
+              AsyncStorage.setItem(`userToken`, res.data.token)
             })
         }
         else{

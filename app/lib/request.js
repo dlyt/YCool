@@ -1,6 +1,6 @@
 const request = {};
 
-const prefix = 'http://localhost:5000'
+const prefix = 'http://146.185.157.84:5000'
 
 request.get = (url, params, token = '') => {
   const options = {
