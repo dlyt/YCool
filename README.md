@@ -2,7 +2,7 @@
 支持搜索小说、订阅小说、在线阅读
 ## 效果图
 
-![Octicons](http://p1.bqimg.com/1949/1cc0df484d580e51.gif)
+![Octicons](http://i4.bvimg.com/1949/acdbf4a368ecdbb5.gif)
 
 
 ## 后台API服务器代码地址
